@@ -38,8 +38,8 @@ export function OrderForm({ mode = "create", orderId, initialData }: OrderFormPr
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
 
-  const { data: jerseys } = useQuery({ queryKey: ["jerseys"], queryFn: fetchJerseys });
-  const { data: members } = useQuery({ queryKey: ["team-members"], queryFn: fetchMembers });
+  const { data: jerseys, isLoading: jerseysLoading } = useQuery({ queryKey: ["jerseys"], queryFn: fetchJerseys });
+  const { data: members, isLoading: membersLoading } = useQuery({ queryKey: ["team-members"], queryFn: fetchMembers });
 
   const {
     register,
@@ -61,28 +61,38 @@ export function OrderForm({ mode = "create", orderId, initialData }: OrderFormPr
     },
   });
 
-  useEffect(() => {
-    if (mode === "edit" && initialData) {
-      reset({
-        customerName: initialData.customerName ?? "",
-        customerPhone: initialData.customerPhone ?? "",
-        customerAddress: initialData.customerAddress ?? "",
-        assignedToId: initialData.assignedToId ?? "",
-        items: (initialData.items ?? [{ jerseyId: "", size: "", quantity: 1 }]).map((item) => ({
-          jerseyId: item.jerseyId,
-          size: item.size,
-          quantity: item.quantity,
-        })),
-        deliveryCharge: Number(initialData.deliveryCharge ?? 0),
-        discount: Number(initialData.discount ?? 0),
-      });
-    }
-  }, [mode, initialData, reset]);
+  const { fields, append, remove, replace } = useFieldArray({ control, name: "items" });
 
-  const { fields, append, remove } = useFieldArray({ control, name: "items" });
+  const optionsLoaded = Array.isArray(jerseys) && Array.isArray(members);
+
+  useEffect(() => {
+    if (mode !== "edit" || !initialData || !optionsLoaded) return;
+
+    const items = (initialData.items ?? [{ jerseyId: "", size: "", quantity: 1 }]).map((item) => ({
+      jerseyId: item.jerseyId,
+      size: item.size,
+      quantity: item.quantity,
+    }));
+
+    reset({
+      customerName: initialData.customerName ?? "",
+      customerPhone: initialData.customerPhone ?? "",
+      customerAddress: initialData.customerAddress ?? "",
+      assignedToId: initialData.assignedToId ?? "",
+      items,
+      deliveryCharge: Number(initialData.deliveryCharge ?? 0),
+      discount: Number(initialData.discount ?? 0),
+    });
+    replace(items);
+  }, [initialData, mode, optionsLoaded, replace, reset]);
+
   const watchedItems = watch("items");
   const deliveryCharge = watch("deliveryCharge") || 0;
   const discount = watch("discount") || 0;
+
+  if (mode === "edit" && (!initialData || jerseysLoading || membersLoading || !optionsLoaded)) {
+    return <div className="text-sm text-muted">Loading order options…</div>;
+  }
 
   const jerseyMap: Record<string, any> = {};
   (jerseys || []).forEach((j: any) => (jerseyMap[j.id] = j));
