@@ -1,0 +1,30 @@
+-- CreateEnum
+CREATE TYPE "Investor" AS ENUM ('TAWHID', 'OVI', 'RABBI');
+
+-- DropIndex
+DROP INDEX "Order_returnedById_idx";
+
+-- CreateTable
+CREATE TABLE "Investment" (
+    "id" TEXT NOT NULL,
+    "investor" "Investor" NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Investment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Cost" (
+    "id" TEXT NOT NULL,
+    "itemName" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Cost_pkey" PRIMARY KEY ("id")
+);

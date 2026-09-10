@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum Investor {
+  TAWHID
+  OVI
+  RABBI
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  emailVerified  Boolean   @default(false)
+  image          String?
+  role           Role      @default(MEMBER)
+  orders         Order[]
+  returnedOrders Order[]   @relation("ReturnedOrders")
+  sessions       Session[]
+  accounts       Account[]
+  deposits       Deposit[]  @relation("MemberDeposits")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  password              String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+}
+
+model Jersey {
+  id           String        @id @default(cuid())
+  name         String
+  team         String
+  season       String?
+  description  String?
+  image        String?
+  buyingPrice  Decimal
+  sellingPrice Decimal
+  status       Boolean       @default(true)
+  stocks       JerseyStock[]
+  orderItems   OrderItem[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model JerseyStock {
+  id        String   @id @default(cuid())
+  jerseyId  String
+  jersey    Jersey   @relation(fields: [jerseyId], references: [id], onDelete: Cascade)
+  size      String
+  quantity  Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([jerseyId, size])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  address   String?
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id             String    @id @default(cuid())
+  orderNumber    String    @unique
+  customerId     String
+  customer       Customer  @relation(fields: [customerId], references: [id])
+  assignedToId   String
+  assignedTo     User      @relation(fields: [assignedToId], references: [id])
+  subtotal       Decimal
+  deliveryCharge Decimal   @default(0)
+  discount       Decimal   @default(0)
+  total          Decimal
+  status         String    @default("COMPLETED")
+  returnedAt     DateTime?
+  returnedById   String?
+  returnedBy     User?     @relation("ReturnedOrders", fields: [returnedById], references: [id])
+  items          OrderItem[]
+  createdAt      DateTime  @default(now())
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  jerseyId     String
+  jersey       Jersey  @relation(fields: [jerseyId], references: [id])
+  size         String
+  quantity     Int
+  buyingPrice  Decimal
+  sellingPrice Decimal
+  totalPrice   Decimal
+}
+
+model InventoryTransaction {
+  id          String   @id @default(cuid())
+  jerseyId    String
+  size        String
+  quantity    Int
+  type        String
+  referenceId String?
+  createdAt   DateTime @default(now())
+}
+
+model Investment {
+  id        String   @id @default(cuid())
+  investor  Investor
+  amount    Float
+  date      DateTime @default(now())
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Cost {
+  id        String   @id @default(cuid())
+  itemName  String
+  quantity  Int
+  amount    Float
+  date      DateTime @default(now())
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Deposit {
+  id        String   @id @default(cuid())
+  memberId  String
+  member    User     @relation("MemberDeposits", fields: [memberId], references: [id])
+  amount    Float
+  date      DateTime @default(now())
+  note      String?
+  createdAt DateTime @default(now())
+}
