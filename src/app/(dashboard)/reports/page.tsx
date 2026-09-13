@@ -31,7 +31,8 @@ export default function ReportsPage() {
             <Row label="Total Jersey Sold" value={String(data.totalSold)} />
             <Row label="COGS" value={formatMoney(data.totalCOGS ?? data.totalCost ?? 0)} />
             <Row label="Inventory Investment" value={formatMoney(data.totalInventoryInvestment ?? data.inventoryInvestment ?? 0)} />
-            <Row label="Total Profit" value={formatMoney(data.totalProfit)} />
+            <Row label="Gross Profit" value={formatMoney(data.totalProfit)} />
+            <Row label="Profit Margin" value={`${Number(data.profitMargin ?? 0).toFixed(1)}%`} />
           </CardContent>
         </Card>
 

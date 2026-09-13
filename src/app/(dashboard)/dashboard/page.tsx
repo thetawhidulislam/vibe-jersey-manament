@@ -53,7 +53,7 @@ export default function DashboardPage() {
           value={formatMoney(data.totalProfit)}
           icon={TrendingUp}
           accent="volt"
-          subtitle="Margin on sold items only"
+          subtitle="Gross profit on sold items only"
         />
       </div>
 

@@ -26,11 +26,13 @@ export async function GET() {
     const totalSales = orders.reduce((s, o) => s + Number(o.total), 0);
     const totalCost = orderItems.reduce((s, i) => s + Number(i.buyingPrice) * i.quantity, 0);
     const totalCOGS = totalCost;
+    const totalMerchandiseSales = orderItems.reduce((s, i) => s + Number(i.sellingPrice) * i.quantity, 0);
     const totalInventoryInvestment = Number(costAgg._sum.amount ?? 0);
     const totalProfit = orderItems.reduce(
       (s, i) => s + (Number(i.sellingPrice) - Number(i.buyingPrice)) * i.quantity,
       0
     );
+    const profitMargin = totalMerchandiseSales > 0 ? (totalProfit / totalMerchandiseSales) * 100 : 0;
 
     // Best selling jersey
     const byJersey: Record<string, { name: string; team: string; qty: number }> = {};
@@ -87,9 +89,11 @@ export async function GET() {
       totalSales,
       totalCOGS,
       totalCost,
+      totalMerchandiseSales,
       inventoryInvestment: totalInventoryInvestment,
       totalInventoryInvestment,
       totalProfit,
+      profitMargin,
       bestSelling,
       sizeSales: bySize,
       teamSales: byTeam,
