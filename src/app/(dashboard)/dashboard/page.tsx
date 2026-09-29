@@ -145,14 +145,20 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2">
             {data.outOfStock.map((s: any, i: number) => (
-              <div key={`out-${i}`} className="flex items-center justify-between text-sm">
-                <span>{s.jerseyName} — {s.team} — {s.size}</span>
+              <div key={`out-${i}`} className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <span className="flex flex-wrap gap-x-1">
+                  <span>{s.jerseyName} — {s.team} — {s.size} —</span>
+                  <span>{formatMoney(s.sellingPrice)}</span>
+                </span>
                 <Badge variant="danger">Out of stock</Badge>
               </div>
             ))}
             {data.lowStock.map((s: any, i: number) => (
-              <div key={`low-${i}`} className="flex items-center justify-between text-sm">
-                <span>{s.jerseyName} — {s.team} — {s.size}</span>
+              <div key={`low-${i}`} className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <span className="flex flex-wrap gap-x-1">
+                  <span>{s.jerseyName} — {s.team} — {s.size} —</span>
+                  <span>{formatMoney(s.sellingPrice)}</span>
+                </span>
                 <Badge variant="warn">Low stock · {s.quantity} left</Badge>
               </div>
             ))}

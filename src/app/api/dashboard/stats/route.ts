@@ -28,10 +28,7 @@ export async function GET() {
     const totalCOGS = totalCost;
     const totalMerchandiseSales = orderItems.reduce((s, i) => s + Number(i.sellingPrice) * i.quantity, 0);
     const totalInventoryInvestment = Number(costAgg._sum.amount ?? 0);
-    const totalProfit = orderItems.reduce(
-      (s, i) => s + (Number(i.sellingPrice) - Number(i.buyingPrice)) * i.quantity,
-      0
-    );
+    const totalProfit = totalSales - totalCOGS;
     const profitMargin = totalMerchandiseSales > 0 ? (totalProfit / totalMerchandiseSales) * 100 : 0;
 
     // Best selling jersey
@@ -103,12 +100,14 @@ export async function GET() {
         jerseyName: s.jersey.name,
         team: s.jersey.team,
         size: s.size,
+        sellingPrice: Number(s.jersey.sellingPrice),
         quantity: s.quantity,
       })),
       outOfStock: outOfStock.map((s) => ({
         jerseyName: s.jersey.name,
         team: s.jersey.team,
         size: s.size,
+        sellingPrice: Number(s.jersey.sellingPrice),
       })),
     });
   } catch (err: any) {

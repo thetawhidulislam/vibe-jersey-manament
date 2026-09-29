@@ -195,7 +195,7 @@ export function OrderForm({ mode = "create", orderId, initialData }: OrderFormPr
                       <option value="">Select jersey</option>
                       {jerseys?.map((j: any) => (
                         <option key={j.id} value={j.id}>
-                          {j.team} — {j.name}
+                          {j.team} — {j.name} — {formatMoney(j.sellingPrice)}
                         </option>
                       ))}
                     </Select>
